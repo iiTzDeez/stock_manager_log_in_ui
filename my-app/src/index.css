@@ -1,0 +1,30 @@
+/* Reset e base */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #0f0f0f;
+  font-family: system-ui, sans-serif;
+  color: white;
+}
+
+/* Centraliza o container */
+#root {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.auth-container {
+  position: relative;
+  padding: 2rem;
+  border-radius: 12px;
+  background: #1a1a1a;
+  box-shadow: 0 0 50px rgba(0, 255, 150, 0.3);
+
+  /* largura controlada */
+  max-width: 420px;
+  width: 100%;
+}
+
