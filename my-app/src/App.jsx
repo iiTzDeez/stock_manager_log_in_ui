@@ -11,7 +11,6 @@ const supabase = createClient(
 export default function App() {
   return (
     <div className="auth-container">
-      <img src="/logo.png" alt="Logo" width="200" />
       <h2 style={{ textAlign: "center", marginBottom: "1rem" }}>
         PairSystems
       </h2>
