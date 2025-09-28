@@ -13,10 +13,8 @@ export default function App() {
   const [session, setSession] = useState(null);
 
   useEffect(() => {
-    // Verifica se já existe sessão ativa
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-    });
+    // 🔴 Força logout sempre que a app carrega
+    supabase.auth.signOut();
 
     // Escuta mudanças de autenticação
     const {
