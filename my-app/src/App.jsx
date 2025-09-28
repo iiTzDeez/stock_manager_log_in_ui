@@ -11,10 +11,12 @@ const supabase = createClient(
 
 export default function App() {
   const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // 🔴 Força logout sempre que a app carrega
     supabase.auth.signOut();
+    setLoading(false);
 
     // Escuta mudanças de autenticação
     const {
