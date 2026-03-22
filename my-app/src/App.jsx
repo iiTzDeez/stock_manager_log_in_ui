@@ -10,62 +10,49 @@ const supabase = createClient(
 );
 
 export default function App() {
-  const [session, setSession] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState(undefined);
 
   useEffect(() => {
-    let isMounted = true;
+    let mounted = true;
 
     const loadSession = async () => {
       const {
         data: { session },
       } = await supabase.auth.getSession();
 
-      if (!isMounted) return;
-
-      setSession(session);
-      setLoading(false);
+      if (mounted) {
+        setSession(session);
+      }
     };
 
     loadSession();
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      if (!isMounted) return;
-
-      setSession(newSession);
-      setLoading(false);
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (mounted) {
+        setSession(session);
+      }
     });
 
-    // Verifica periodicamente se a sessão ainda é válida no servidor
-    const interval = setInterval(async () => {
-      const { data, error } = await supabase.auth.getUser();
-
-      if (error || !data?.user) {
-        setSession(null);
-      }
-    }, 10000);
-
     return () => {
-      isMounted = false;
+      mounted = false;
       subscription.unsubscribe();
-      clearInterval(interval);
     };
   }, []);
 
   const handleLogout = async () => {
+    // volta logo à página inicial
+    setSession(null);
+
     const { error } = await supabase.auth.signOut();
 
     if (error) {
       console.error("Erro ao fazer logout:", error.message);
-      return;
     }
-
-    setSession(null);
   };
 
-  if (loading) {
+  if (session === undefined) {
     return (
       <div className="auth-container">
         <p style={{ textAlign: "center" }}>Loading...</p>
