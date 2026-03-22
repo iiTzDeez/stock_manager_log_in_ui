@@ -36,7 +36,7 @@ export default function App() {
             PairSystems
           </h2>
           <p style={{ textAlign: "center", marginBottom: "1.5rem" }}>
-            Sign in today for PairSys DataLog
+            Sign in today for NoTeeLog
           </p>
 
           <Auth
