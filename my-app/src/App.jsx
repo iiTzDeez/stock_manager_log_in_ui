@@ -14,8 +14,6 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 🔴 Força logout sempre que a app carrega
-    supabase.auth.signOut();
     setLoading(false);
 
     // Escuta mudanças de autenticação
@@ -79,6 +77,21 @@ export default function App() {
             readOnly
             style={{ width: "100%", height: "100px" }}
           />
+
+          <button
+            onClick={() => supabase.auth.signOut()}
+            style={{
+              padding: "10px 16px",
+              borderRadius: "8px",
+              border: "none",
+              cursor: "pointer",
+              backgroundColor: "#dc2626",
+              color: "white",
+              fontWeight: "600"
+            }}
+          >
+            Logout
+          </button>
         </div>
       )}
     </div>
