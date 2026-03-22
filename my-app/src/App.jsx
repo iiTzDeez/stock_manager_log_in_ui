@@ -6,7 +6,7 @@ import "./index.css";
 
 const supabase = createClient(
   "https://jtxdyfeodgkggylmvpqz.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0eGR5ZmVvZGdrZ2d5bG12cHF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg3NTI1MDIsImV4cCI6MjA3NDMyODUwMn0.Tr7PdgEZbjTB_Sz1_q2xKbNbGtaUmGw9AiVIJXmORf0"
+  "A_SUA_ANON_KEY"
 );
 
 export default function App() {
@@ -14,17 +14,46 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(false);
+    const loadSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-    // Escuta mudanças de autenticação
+      setSession(session);
+      setLoading(false);
+    };
+
+    loadSession();
+
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth event:", event);
       setSession(session);
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      console.error("Logout error:", error.message);
+      return;
+    }
+
+    setSession(null);
+  };
+
+  if (loading) {
+    return (
+      <div className="auth-container">
+        <p>Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="auth-container">
@@ -61,33 +90,36 @@ export default function App() {
       ) : (
         <div style={{ textAlign: "center" }}>
           <h2>✅ Login successful!</h2>
+
           <p>
             <strong>Access Token:</strong>
           </p>
           <textarea
-            value={session.access_token}
+            value={session.access_token ?? ""}
             readOnly
             style={{ width: "100%", height: "100px" }}
           />
+
           <p>
             <strong>Refresh Token:</strong>
           </p>
           <textarea
-            value={session.refresh_token}
+            value={session.refresh_token ?? ""}
             readOnly
             style={{ width: "100%", height: "100px" }}
           />
 
           <button
-            onClick={() => supabase.auth.signOut()}
+            onClick={handleLogout}
             style={{
               padding: "10px 16px",
               borderRadius: "8px",
               border: "none",
               cursor: "pointer",
+              marginTop: "20px",
               backgroundColor: "#dc2626",
               color: "white",
-              fontWeight: "600"
+              fontWeight: "600",
             }}
           >
             Logout
