@@ -6,7 +6,7 @@ import "./index.css";
 
 const supabase = createClient(
   "https://jtxdyfeodgkggylmvpqz.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0eGR5ZmVvZGdrZ2d5bG12cHF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg3NTI1MDIsImV4cCI6MjA3NDMyODUwMn0.Tr7PdgEZbjTB_Sz1_q2xKbNbGtaUmGw9AiVIJXmORf0"
+  "A_SUA_CHAVE_CORRETA"
 );
 
 export default function App() {
@@ -14,10 +14,14 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+
     const loadSession = async () => {
       const {
         data: { session },
       } = await supabase.auth.getSession();
+
+      if (!isMounted) return;
 
       setSession(session);
       setLoading(false);
@@ -27,20 +31,34 @@ export default function App() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Auth event:", event);
-      setSession(session);
+    } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      if (!isMounted) return;
+
+      setSession(newSession);
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    // Verifica periodicamente se a sessão ainda é válida no servidor
+    const interval = setInterval(async () => {
+      const { data, error } = await supabase.auth.getUser();
+
+      if (error || !data?.user) {
+        setSession(null);
+      }
+    }, 10000);
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+      clearInterval(interval);
+    };
   }, []);
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
 
     if (error) {
-      console.error("Logout error:", error.message);
+      console.error("Erro ao fazer logout:", error.message);
       return;
     }
 
@@ -50,7 +68,7 @@ export default function App() {
   if (loading) {
     return (
       <div className="auth-container">
-        <p>Loading...</p>
+        <p style={{ textAlign: "center" }}>Loading...</p>
       </div>
     );
   }
@@ -62,6 +80,7 @@ export default function App() {
           <h2 style={{ textAlign: "center", marginBottom: "1rem" }}>
             PairSystems
           </h2>
+
           <p style={{ textAlign: "center", marginBottom: "1.5rem" }}>
             Sign in today for NoTee Log
           </p>
